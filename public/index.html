@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Práctica JWT - Autenticación Segura</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h2>Login con JWT y Cookies</h2>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" value="admin" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" value="123" required />
+      </div>
+      <button type="submit">Iniciar Sesión</button>
+    </form>
+
+    <div id="mensaje"></div>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const divMensaje = document.getElementById("mensaje");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          // ruta relativa '/login' dentro del mismo dominio
+          const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            divMensaje.style.color = "green";
+            divMensaje.textContent = ":) " + data.message;
+          } else {
+            divMensaje.style.color = "red";
+            divMensaje.textContent = ":( Error: " + data.message;
+          }
+        } catch (error) {
+          divMensaje.style.color = "red";
+          divMensaje.textContent = "Error de conexión con el servidor.";
+          console.error(error);
+        }
+      });
+    </script>
+  </body>
+</html>
