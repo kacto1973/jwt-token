@@ -1,19 +1,16 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
 const SECRET_KEY = "clave_secreta_y_segura";
-
 const users = [{ id: 1, username: "admin", password: "123" }];
 
-app.post("/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
 
   const user = users.find(
@@ -24,27 +21,18 @@ app.post("/login", (req, res) => {
     return res.status(401).json({ message: "Credenciales inválidas" });
   }
 
-  const payload = {
-    id: user.id,
-    username: user.username,
-  };
+  const payload = { id: user.id, username: user.username };
 
-  const token = jwt.sign(payload, SECRET_KEY, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "1h" });
 
   res.cookie("token", token, {
-    httpOnly: true, // El JavaScript del navegador no puede leer esta cookie. pal xss
+    httpOnly: true,
     sameSite: "strict",
-    maxAge: 1000 * 60 * 60, // 1 hora de validez
+    secure: true,
+    maxAge: 1000 * 60 * 60,
   });
 
   res.json({ message: "Login exitoso, cookie establecida" });
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(
-    `Servidor de autenticación corriendo en http://localhost:${PORT}`,
-  );
-});
+module.exports = app;
